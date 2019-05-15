@@ -3,12 +3,12 @@
     use PHPMailer\PHPMailer\PHPMailer;
     require 'vendor/phpmailer/src/PHPMailer.php';
     require 'vendor/phpmailer/src/Exception.php';
+    require 'vendor/phpmailer/src/SMTP.php';
 
     // var_dump($_POST); //checks the data
 
     if ($_SERVER["REQUEST_METHOD"] == "POST")
     {
-        $isModal ="";
         $name   = trim(filter_input(INPUT_POST,"userFullName",FILTER_SANITIZE_STRING));
         $email  = trim(filter_input(INPUT_POST,"userEmail",FILTER_SANITIZE_EMAIL));
         $details =trim(filter_input(INPUT_POST,"details",FILTER_SANITIZE_SPECIAL_CHARS));
@@ -33,24 +33,41 @@
 
         // echo "<pre>"; // this element does the same as <br /> but the whole block
         $email_body = "";
-        $email_body .= "Name " . $name . "<br />" . "\n";
-        $email_body .= "Email " . $email . "<br />" . "\n";
-        $email_body .= "Details message ". $details . "<br />" . "\n";
+        $email_body .= "Name " . $name . "\n";
+        $email_body .= "Email " . $email . "\n";
+        $email_body .= "Details message ". $details . "\n";
         // echo "</pre>";
 
-        // To do: Send email
-
         $mail = new PHPMailer;
-        // $mail->isSMTP();
-        // $mail->Host = 'localhost';
-        // $mail->Port = 2500;
-        // $mail->CharSet = 'utf-8';
+        //Tell PHPMailer to use SMTP
+        $mail->isSMTP();
+        //Enable SMTP debugging
+        // 0 = off (for production use)
+        // 1 = client messages
+        // 2 = client and server messages
+        $mail->SMTPDebug = 2;
+        //Set the hostname of the mail server
+        $mail->Host = 'smtp.gmail.com';
+        // use
+        // $mail->Host = gethostbyname('smtp.gmail.com');
+        // if your network does not support SMTP over IPv6
+        //Set the SMTP port number - 587 for authenticated TLS, a.k.a. RFC4409 SMTP submission
+        $mail->Port = 587;
+        //Set the encryption system to use - ssl (deprecated) or tls
+        $mail->SMTPSecure = 'tls';
+        //Whether to use SMTP authentication
+        $mail->SMTPAuth = true;
+        //Username to use for SMTP authentication - use full email address for gmail
+        $mail->Username = "propsjane@gmail.com";
+        //Password to use for SMTP authentication
+        $mail->Password = "jadcpzmdcwpaqmmf";
+
         //It's important not to use the submitter's address as the from address as it's forgery,
         //which will cause your messages to fail SPF checks.
         //Use an address in your own domain as the from address, put the submitter's address in a reply-to
-        $mail->setFrom('samplelololo@gmail.com', $name);
+        $mail->setFrom('propsjane@gmail.com', $name);
         $mail->addReplyTo($email, $name);
-        $mail->addAddress('samplelololo@gmail.com', 'Jane');
+        $mail->addAddress('propsjane@gmail.com', 'Jane');
         $mail->Subject = 'Library suggestion from ' . $name;
         $mail->Body = $email_body;
         if (!$mail->send())
